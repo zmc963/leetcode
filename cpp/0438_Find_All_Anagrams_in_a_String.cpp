@@ -4,31 +4,37 @@ class Solution
     using VALUE_TYPE = std::string::value_type;
 
 public:
-    vector<int> findAnagrams(string s, string p)
+    std::vector<int> findAnagrams(string s, string p)
     {
-        std::unordered_map<VALUE_TYPE, long long> hash;
-        for( auto&& c : p ) ++hash[c];
-        long long count_p = p.size();
+        std::unordered_map<VALUE_TYPE, SIZE_TYPE> p_hash;
+        for( auto&& c : p ) ++p_hash[c];
 
         std::vector<int> anagrams;
-        const auto SIZE = s.size();
-        const auto ANAGRAM_SIZE = p.size();
-        for( SIZE_TYPE left=0,right=0; right<SIZE; ++right )
+        const auto S_SIZE = s.size();
+        const auto P_SIZE = p.size();
+        for( SIZE_TYPE left=0, right=0; right<S_SIZE; ++right )
         {
             auto c = s.at(right);
-            if( hash.count(c) && hash[c]-- >= 1 ) --count_p;
-
-            if( 0 == count_p ) anagrams.push_back(left);
-
-            if( right-left+1 == ANAGRAM_SIZE )
+            if( !p_hash.count(c) || 0==p_hash[c] )
             {
-                auto c = s.at(left);
-                if( hash.count(c) && hash[c]++ >= 0 ) ++count_p;
-
+                while( c != s.at(left) )
+                {
+                    assert( p_hash.count(s.at(left)) );
+                    ++p_hash[s.at(left)];
+                    ++left;
+                }
+                assert( left <= right );
                 ++left;
             }
-
-            assert( right-left+1 <= ANAGRAM_SIZE );
+            else
+            {
+                --p_hash[c];
+                if( P_SIZE == right-left+1 )
+                {
+                    anagrams.push_back(left);
+                    ++p_hash[s.at(left++)];
+                }
+            }
         }
 
         return anagrams;
