@@ -1,0 +1,38 @@
+class Solution 
+{
+    using STR_SIZE_TYPE = std::string::size_type;
+    using VEC_SIZE_TYPE = std::vector<STR_SIZE_TYPE>::size_type;
+    
+public:
+    int minDistance(string word1, string word2) 
+    {
+        const auto SIZE_1 = word1.size();
+        const auto SIZE_2 = word2.size();
+
+        std::vector<std::vector<STR_SIZE_TYPE>> dp( SIZE_1+1, std::vector<STR_SIZE_TYPE>( SIZE_2+1, 0 ) );
+        for( VEC_SIZE_TYPE j=1; j<=SIZE_2; ++j ) dp.at(0).at(j) = j;
+        
+        for( VEC_SIZE_TYPE i=1; i<=SIZE_1; ++i )
+        {
+            dp.at(i).at(0) = i;
+            for( VEC_SIZE_TYPE j=1; j<=SIZE_2; ++j )
+            {
+                if( word1.at(i-1) == word2.at(j-1) )
+                {
+                    dp.at(i).at(j) = dp.at(i-1).at(j-1);
+                }
+                else
+                {
+                    auto insert_op = dp.at(i).at(j-1) + 1;
+                    auto delete_op = dp.at(i-1).at(j) + 1;
+                    auto replace_op = dp.at(i-1).at(j-1) + 1;
+                    
+                    dp.at(i).at(j) = std::min( insert_op, delete_op );
+                    dp.at(i).at(j) = std::min( dp.at(i).at(j), replace_op );
+                }
+            }
+        }
+        
+        return dp.back().back();
+    }
+};
